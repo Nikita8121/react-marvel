@@ -1,36 +1,56 @@
-export default class MarvelService {
-  _apiBase = "https://gateway.marvel.com:443/v1/public/";
-  _baseOffset = 210;
+import { useHttp } from "../hooks/http.hook";
 
-  getResource = async (url) => {
-    let res = await fetch(url);
+const useMarvelService = () => {
+  const { loading, request, error, clearError } = useHttp();
 
-    if (!res.ok) {
-      throw new Error(`Could not fetch ${url}, status: ${res.status} `);
-    }
+  const _apiBase = "https://gateway.marvel.com:443/v1/public/";
+  const _baseOffset = 210;
 
-    return await res.json();
-  };
-
-  getAllCharacters = async (offset = this._baseOffset) => {
-    const res = await this.getResource(
-      `${this._apiBase}characters?limit=9&offset=${offset}&apikey=${process.env.REACT_APP_API_KEY}&ts=${process.env.REACT_APP_API_TS}&hash=${process.env.REACT_APP_API_HASH}`
+  const getAllCharacters = async (offset = _baseOffset) => {
+    const res = await request(
+      `${_apiBase}characters?limit=9&offset=${offset}&apikey=${process.env.REACT_APP_API_KEY}&ts=${process.env.REACT_APP_API_TS}&hash=${process.env.REACT_APP_API_HASH}`
     );
-    return this._transformCharacters(res.data.results);
+    return _transformCharacters(res.data.results);
   };
 
-  getCharacter = async (id) => {
-    const res = await this.getResource(
-      `${this._apiBase}characters/${id}?apikey=${process.env.REACT_APP_API_KEY}&ts=${process.env.REACT_APP_API_TS}&hash=${process.env.REACT_APP_API_HASH}`
+  const getCharacter = async (id) => {
+    const res = await request(
+      `${_apiBase}characters/${id}?apikey=${process.env.REACT_APP_API_KEY}&ts=${process.env.REACT_APP_API_TS}&hash=${process.env.REACT_APP_API_HASH}`
     );
-    return this._transformCharacter(res.data.results[0]);
+    return _transformCharacter(res.data.results[0]);
   };
 
-  _transformCharacters = (arrChars) => {
-    return arrChars.map((char) => this._transformCharacter(char));
+  const getAllComics = async (offset) => {
+    const res = await request(
+      `${_apiBase}comics?limit=8&offset=${offset}&apikey=${process.env.REACT_APP_API_KEY}&ts=${process.env.REACT_APP_API_TS}&hash=${process.env.REACT_APP_API_HASH}`
+    );
+    console.log(res);
+    return _transformComics(res.data.results);
   };
 
-  _transformCharacter = (char) => {
+  const _transformComic = ({
+    title,
+    thumbnail: { path, extension },
+    prices,
+    urls,
+  }) => {
+    return {
+      title,
+      thumbnail: `${path}.${extension}`,
+      price: prices[0].price,
+      link: urls[0].url,
+    };
+  };
+
+  const _transformComics = (arrComics) => {
+    return arrComics.map((comic) => _transformComic(comic));
+  };
+
+  const _transformCharacters = (arrChars) => {
+    return arrChars.map((char) => _transformCharacter(char));
+  };
+
+  const _transformCharacter = (char) => {
     const {
       name,
       description,
@@ -51,4 +71,15 @@ export default class MarvelService {
       id,
     };
   };
-}
+
+  return {
+    loading,
+    error,
+    getAllCharacters,
+    getCharacter,
+    clearError,
+    getAllComics,
+  };
+};
+
+export default useMarvelService;
