@@ -28,17 +28,31 @@ const useMarvelService = () => {
     return _transformComics(res.data.results);
   };
 
+  const getComic = async (id) => {
+    const res = await request(
+      `${_apiBase}comics/${id}?apikey=${process.env.REACT_APP_API_KEY}&ts=${process.env.REACT_APP_API_TS}&hash=${process.env.REACT_APP_API_HASH}`
+    );
+    return _transformComic(res.data.results[0]);
+  };
+
   const _transformComic = ({
     title,
     thumbnail: { path, extension },
     prices,
-    urls,
+    id,
+    description,
+    pageCount
   }) => {
     return {
       title,
+      description: description
+      ? description.slice(0, 210) + "..."
+      : "no description",
       thumbnail: `${path}.${extension}`,
-      price: prices[0].price,
-      link: urls[0].url,
+      price: prices[0].price ? prices[0].price + "$" : "not available",
+      id,
+      pageCount,
+      language: 'en-us'
     };
   };
 
@@ -79,6 +93,7 @@ const useMarvelService = () => {
     getCharacter,
     clearError,
     getAllComics,
+    getComic,
   };
 };
 

@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "./comicsList.scss";
-import uw from "../../resources/img/UW.png";
-import xMen from "../../resources/img/x-men.png";
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 
@@ -35,18 +34,18 @@ const ComicsList = () => {
   };
 
   const renderItems = (arr) => {
-    const items = arr.map(({ title, thumbnail, price, link }, i) => {
+    const items = arr.map(({ title, thumbnail, price, id }, i) => {
       return (
         <li key={i.toString()} className="comics__item">
-          <a href={link}>
+          <Link to={`/comics/${id}`}>
             <img
               src={thumbnail}
               alt="ultimate war"
               className="comics__item-img"
             />
             <div className="comics__item-name">{title}</div>
-            <div className="comics__item-price">{price}$</div>
-          </a>
+            <div className="comics__item-price">{price}</div>
+          </Link>
         </li>
       );
     });
