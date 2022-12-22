@@ -1,7 +1,8 @@
 import { useHttp } from "../hooks/http.hook";
 
 const useMarvelService = () => {
-  const { loading, request, error, clearError } = useHttp();
+  const { loading, request, error, clearError, processState, setProcessState } =
+    useHttp();
 
   const _apiBase = "https://gateway.marvel.com:443/v1/public/";
   const _baseOffset = 210;
@@ -41,18 +42,18 @@ const useMarvelService = () => {
     prices,
     id,
     description,
-    pageCount
+    pageCount,
   }) => {
     return {
       title,
       description: description
-      ? description.slice(0, 210) + "..."
-      : "no description",
+        ? description.slice(0, 210) + "..."
+        : "no description",
       thumbnail: `${path}.${extension}`,
       price: prices[0].price ? prices[0].price + "$" : "not available",
       id,
       pageCount,
-      language: 'en-us'
+      language: "en-us",
     };
   };
 
@@ -94,6 +95,8 @@ const useMarvelService = () => {
     clearError,
     getAllComics,
     getComic,
+    processState,
+    setProcessState,
   };
 };
 
